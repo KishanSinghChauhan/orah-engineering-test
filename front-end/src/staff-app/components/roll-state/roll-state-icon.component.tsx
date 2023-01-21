@@ -30,6 +30,7 @@ function getBgColor(type: RolllStateType) {
     case "late":
       return "#f5a623"
     default:
+      ;``
       return "#13943b"
   }
 }

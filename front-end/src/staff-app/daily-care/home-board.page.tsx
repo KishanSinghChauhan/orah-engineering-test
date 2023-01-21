@@ -5,13 +5,17 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Spacing, BorderRadius, FontWeight } from "shared/styles/styles"
 import { Colors } from "shared/styles/colors"
 import { CenteredContainer } from "shared/components/centered-container/centered-container.component"
-import { Person } from "shared/models/person"
+import { Person, PersonHelper } from "shared/models/person"
 import { useApi } from "shared/hooks/use-api"
 import { StudentListTile } from "staff-app/components/student-list-tile/student-list-tile.component"
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
+import Input from "shared/components/input/input.component"
+import { Menu, MenuItem, Switch } from "@material-ui/core"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
+  const [searchValue, setSearchValue] = useState("")
+
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
 
   useEffect(() => {
@@ -30,10 +34,18 @@ export const HomeBoardPage: React.FC = () => {
     }
   }
 
+  const handleSearch = (val: string) => {
+    setSearchValue(val)
+  }
+
+  const filteredData = data?.students?.filter((_item) => PersonHelper.getFullName(_item).toLowerCase().includes(searchValue.toLowerCase()))
+
+  const handleSort = () => {}
+
   return (
     <>
       <S.PageContainer>
-        <Toolbar onItemClick={onToolbarAction} />
+        <Toolbar onItemClick={onToolbarAction} searchValue={searchValue} handleSearch={handleSearch} />
 
         {loadState === "loading" && (
           <CenteredContainer>
@@ -41,9 +53,9 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
 
-        {loadState === "loaded" && data?.students && (
+        {loadState === "loaded" && filteredData && (
           <>
-            {data.students.map((s) => (
+            {filteredData.map((s) => (
               <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
             ))}
           </>
@@ -63,13 +75,34 @@ export const HomeBoardPage: React.FC = () => {
 type ToolbarAction = "roll" | "sort"
 interface ToolbarProps {
   onItemClick: (action: ToolbarAction, value?: string) => void
+  searchValue: string
+  handleSearch: (value: string) => void
 }
+
 const Toolbar: React.FC<ToolbarProps> = (props) => {
-  const { onItemClick } = props
+  const { onItemClick, searchValue, handleSearch } = props
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
+
   return (
     <S.ToolbarContainer>
-      <div onClick={() => onItemClick("sort")}>First Name</div>
-      <div>Search</div>
+      <S.Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
+        Sort
+      </S.Button>
+      <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
+        <MenuItem onClick={handleClose}>Asc Order</MenuItem>
+        <MenuItem>Desc Order</MenuItem>
+        <MenuItem onClick={handleClose}>First Name</MenuItem>
+        <MenuItem>Desc Order</MenuItem>
+      </Menu>
+      <Input value={searchValue} onChange={(e) => handleSearch(e.target.value)} placeholder="Search..." autoFocus />
       <S.Button onClick={() => onItemClick("roll")}>Start Roll</S.Button>
     </S.ToolbarContainer>
   )
@@ -92,6 +125,7 @@ const S = {
     font-weight: ${FontWeight.strong};
     border-radius: ${BorderRadius.default};
   `,
+
   Button: styled(Button)`
     && {
       padding: ${Spacing.u2};
