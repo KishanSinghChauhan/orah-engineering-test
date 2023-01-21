@@ -11,12 +11,17 @@ import { StudentListTile } from "staff-app/components/student-list-tile/student-
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
 import Input from "shared/components/input/input.component"
 import { Menu, MenuItem, Switch } from "@material-ui/core"
+import { useAppDispatch, useAppSelector } from "shared/hooks/misc"
+import { filterPersons } from "redux/person.slice"
 
 export const HomeBoardPage: React.FC = () => {
+  const dispatch = useAppDispatch()
   const [isRollMode, setIsRollMode] = useState(false)
   const [searchValue, setSearchValue] = useState("")
 
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
+
+  const { persons } = useAppSelector((state) => state.person)
 
   useEffect(() => {
     void getStudents()
@@ -36,11 +41,8 @@ export const HomeBoardPage: React.FC = () => {
 
   const handleSearch = (val: string) => {
     setSearchValue(val)
+    dispatch(filterPersons({ students: data?.students, value: val }))
   }
-
-  const filteredData = data?.students?.filter((_item) => PersonHelper.getFullName(_item).toLowerCase().includes(searchValue.toLowerCase()))
-
-  const handleSort = () => {}
 
   return (
     <>
@@ -53,9 +55,9 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
 
-        {loadState === "loaded" && filteredData && (
+        {loadState === "loaded" && data?.students && (
           <>
-            {filteredData.map((s) => (
+            {(searchValue ? persons : data.students).map((s) => (
               <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
             ))}
           </>
