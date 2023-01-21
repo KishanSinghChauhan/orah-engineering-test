@@ -20,9 +20,12 @@ export const personSlice = createSlice({
     filterPersons: (state, action) => {
       state.persons = getFilteredPersons(action.payload.students, action.payload.value)
     },
+    addPersons: (state, action) => {
+      state.persons = action.payload
+    },
   },
 })
 
-export const { filterPersons } = personSlice.actions
+export const { filterPersons, addPersons } = personSlice.actions
 
 export default personSlice.reducer

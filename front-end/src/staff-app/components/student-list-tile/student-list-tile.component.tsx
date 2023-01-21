@@ -5,12 +5,16 @@ import { Images } from "assets/images"
 import { Colors } from "shared/styles/colors"
 import { Person, PersonHelper } from "shared/models/person"
 import { RollStateSwitcher } from "staff-app/components/roll-state/roll-state-switcher.component"
+import { useAppDispatch } from "shared/hooks/misc"
+import { addRolls } from "redux/rolls.slice"
 
 interface Props {
   isRollMode?: boolean
   student: Person
 }
 export const StudentListTile: React.FC<Props> = ({ isRollMode, student }) => {
+  const dispatch = useAppDispatch()
+
   return (
     <S.Container>
       <S.Avatar url={Images.avatar}></S.Avatar>
@@ -19,7 +23,15 @@ export const StudentListTile: React.FC<Props> = ({ isRollMode, student }) => {
       </S.Content>
       {isRollMode && (
         <S.Roll>
-          <RollStateSwitcher />
+          <RollStateSwitcher
+            onStateChange={(roll) =>
+              dispatch(
+                addRolls({
+                  student_roll_states: { student_id: student.id, roll_state: roll },
+                })
+              )
+            }
+          />
         </S.Roll>
       )}
     </S.Container>
