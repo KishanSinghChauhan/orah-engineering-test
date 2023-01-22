@@ -5,14 +5,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Spacing, BorderRadius, FontWeight } from "shared/styles/styles"
 import { Colors } from "shared/styles/colors"
 import { CenteredContainer } from "shared/components/centered-container/centered-container.component"
-import { Person } from "shared/models/person"
+import { OrderList, Person } from "shared/models/person"
 import { useApi } from "shared/hooks/use-api"
 import { StudentListTile } from "staff-app/components/student-list-tile/student-list-tile.component"
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
 import Input from "shared/components/input/input.component"
 import { Menu, MenuItem, Switch } from "@material-ui/core"
 import { useAppDispatch, useAppSelector } from "shared/hooks/misc"
-import { filterPersons, filterPersonsByRoll } from "redux/person.slice"
+import { filterPersons, filterPersonsByRoll, orderPersons } from "redux/person.slice"
 
 export const HomeBoardPage: React.FC = () => {
   const dispatch = useAppDispatch()
@@ -83,6 +83,7 @@ interface ToolbarProps {
 }
 
 const Toolbar: React.FC<ToolbarProps> = (props) => {
+  const dispatch = useAppDispatch()
   const { onItemClick, searchValue, handleSearch } = props
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
 
@@ -100,10 +101,17 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
         Sort
       </S.Button>
       <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
-        <MenuItem onClick={handleClose}>Asc Order</MenuItem>
-        <MenuItem>Desc Order</MenuItem>
-        <MenuItem onClick={handleClose}>First Name</MenuItem>
-        <MenuItem>Desc Order</MenuItem>
+        {OrderList.map((_item) => (
+          <MenuItem
+            onClick={() => {
+              dispatch(orderPersons(_item.value))
+              handleClose()
+            }}
+            key={_item.value}
+          >
+            {_item.label}
+          </MenuItem>
+        ))}
       </Menu>
       <Input value={searchValue} onChange={(e) => handleSearch(e.target.value)} placeholder="Search..." autoFocus />
       <S.Button onClick={() => onItemClick("roll")}>Start Roll</S.Button>

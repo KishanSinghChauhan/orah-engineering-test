@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit"
-import { Person, PersonHelper } from "shared/models/person"
+import { OrderType, Person, PersonHelper } from "shared/models/person"
 import { RolllStateType } from "shared/models/roll"
 
 interface PersonState {
@@ -30,6 +30,25 @@ const getFilteredPersonByRoll = (list: Person[], roll: RolllStateType | "all" | 
   return list?.filter((_item) => _item?.roll === roll)
 }
 
+const getOrderedPersons = (list: Person[], type: OrderType) => {
+  if (type === "asc") {
+    return list
+  }
+  if (type === "desc") {
+    return list.slice().reverse()
+  }
+
+  if (type === "first_name") {
+    return list.slice().sort((a, b) => (a.first_name > b.first_name ? 1 : -1))
+  }
+
+  if (type === "last_name") {
+    return list.slice().sort((a, b) => (a.last_name > b.last_name ? 1 : -1))
+  }
+
+  return list
+}
+
 export const personSlice = createSlice({
   name: "person",
   initialState,
@@ -47,9 +66,12 @@ export const personSlice = createSlice({
       const { id, roll } = action.payload
       state.persons = addRollWithPersonList(state.persons, id, roll)
     },
+    orderPersons: (state, action) => {
+      state.filteredPersons = getOrderedPersons(state.persons, action.payload)
+    },
   },
 })
 
-export const { filterPersons, addPersons, assignRoll, filterPersonsByRoll } = personSlice.actions
+export const { filterPersons, addPersons, assignRoll, filterPersonsByRoll, orderPersons } = personSlice.actions
 
 export default personSlice.reducer
