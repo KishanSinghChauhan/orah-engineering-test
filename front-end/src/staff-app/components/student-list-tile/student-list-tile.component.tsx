@@ -7,6 +7,7 @@ import { Person, PersonHelper } from "shared/models/person"
 import { RollStateSwitcher } from "staff-app/components/roll-state/roll-state-switcher.component"
 import { useAppDispatch } from "shared/hooks/misc"
 import { addRolls } from "redux/rolls.slice"
+import { assignRoll } from "redux/person.slice"
 
 interface Props {
   isRollMode?: boolean
@@ -24,13 +25,15 @@ export const StudentListTile: React.FC<Props> = ({ isRollMode, student }) => {
       {isRollMode && (
         <S.Roll>
           <RollStateSwitcher
-            onStateChange={(roll) =>
+            onStateChange={(roll) => {
               dispatch(
                 addRolls({
                   student_roll_states: { student_id: student.id, roll_state: roll },
                 })
               )
-            }
+              dispatch(assignRoll({ id: student.id, roll }))
+            }}
+            initialState={student.roll || "unmark"}
           />
         </S.Roll>
       )}

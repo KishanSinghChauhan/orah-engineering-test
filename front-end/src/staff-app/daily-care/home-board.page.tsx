@@ -5,23 +5,23 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Spacing, BorderRadius, FontWeight } from "shared/styles/styles"
 import { Colors } from "shared/styles/colors"
 import { CenteredContainer } from "shared/components/centered-container/centered-container.component"
-import { Person, PersonHelper } from "shared/models/person"
+import { Person } from "shared/models/person"
 import { useApi } from "shared/hooks/use-api"
 import { StudentListTile } from "staff-app/components/student-list-tile/student-list-tile.component"
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
 import Input from "shared/components/input/input.component"
 import { Menu, MenuItem, Switch } from "@material-ui/core"
 import { useAppDispatch, useAppSelector } from "shared/hooks/misc"
-import { filterPersons } from "redux/person.slice"
+import { filterPersons, filterPersonsByRoll } from "redux/person.slice"
 
 export const HomeBoardPage: React.FC = () => {
   const dispatch = useAppDispatch()
   const [isRollMode, setIsRollMode] = useState(false)
   const [searchValue, setSearchValue] = useState("")
 
-  const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
+  const [getStudents, _, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
 
-  const { persons } = useAppSelector((state) => state.person)
+  const { persons, filteredPersons } = useAppSelector((state) => state.person)
 
   useEffect(() => {
     void getStudents()
@@ -36,12 +36,13 @@ export const HomeBoardPage: React.FC = () => {
   const onActiveRollAction = (action: ActiveRollAction) => {
     if (action === "exit") {
       setIsRollMode(false)
+      dispatch(filterPersonsByRoll("none"))
     }
   }
 
   const handleSearch = (val: string) => {
     setSearchValue(val)
-    dispatch(filterPersons({ students: data?.students, value: val }))
+    dispatch(filterPersons({ value: val }))
   }
 
   return (
@@ -55,9 +56,9 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
 
-        {loadState === "loaded" && data?.students && (
+        {loadState === "loaded" && persons.length > 0 && (
           <>
-            {(searchValue ? persons : data.students).map((s) => (
+            {(filteredPersons.length ? filteredPersons : persons).map((s) => (
               <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
             ))}
           </>
