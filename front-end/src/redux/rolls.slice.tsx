@@ -12,7 +12,7 @@ const initialState: PersonState = {
 function createRoll(id: number, input: RollInput) {
   return {
     id,
-    name: `Roll ${id}`,
+    student: input.student,
     student_roll_states: input.student_roll_states,
     completed_at: new Date(),
   }
@@ -20,7 +20,6 @@ function createRoll(id: number, input: RollInput) {
 
 const addRollsOnList = (list: Roll[], roll: RollInput) => {
   const newRollId = list.length ? list[0].id + 1 : 1
-  const rollsToSave = list.length ? [...list, createRoll(newRollId, roll)] : [createRoll(newRollId, roll)]
 
   return [createRoll(newRollId, roll), ...list]
 }

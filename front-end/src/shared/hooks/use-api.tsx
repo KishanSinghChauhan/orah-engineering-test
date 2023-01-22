@@ -4,7 +4,7 @@ import { RollInput } from "shared/models/roll"
 import { getHomeboardStudents } from "api/get-homeboard-students"
 import { getActivities } from "api/get-activities"
 import { saveActiveRoll } from "api/save-active-roll"
-import { useAppDispatch } from "./misc"
+import { useAppDispatch, useAppSelector } from "./misc"
 import { addPersons } from "redux/person.slice"
 
 interface Options {
@@ -13,6 +13,7 @@ interface Options {
 }
 export function useApi<ReturnType = {}>({ url, initialLoadState = "loading" }: Options) {
   const sliceDispatch = useAppDispatch()
+  const { persons } = useAppSelector((state) => state.person)
   const [state, dispatch] = useReducer(stateReducer<ReturnType>(), { data: undefined, loadState: initialLoadState, error: undefined })
   const callApi = useCallback(
     async (params?: object) => {
@@ -30,7 +31,7 @@ export function useApi<ReturnType = {}>({ url, initialLoadState = "loading" }: O
         case "get-homeboard-students":
           return getHomeboardStudents().then((res) => {
             process(res)
-            if (res.success) {
+            if (res.success && !persons.length) {
               sliceDispatch(addPersons(res?.students))
             }
           })

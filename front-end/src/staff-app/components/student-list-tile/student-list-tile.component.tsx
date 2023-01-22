@@ -29,6 +29,7 @@ export const StudentListTile: React.FC<Props> = ({ isRollMode, student }) => {
               dispatch(
                 addRolls({
                   student_roll_states: { student_id: student.id, roll_state: roll },
+                  student,
                 })
               )
               dispatch(assignRoll({ id: student.id, roll }))

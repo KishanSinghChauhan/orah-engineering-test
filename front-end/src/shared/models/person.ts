@@ -10,4 +10,5 @@ export interface Person {
 
 export const PersonHelper = {
   getFullName: (p: Person) => `${p.first_name} ${p.last_name}`,
+  getTime: (date: Date) => `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()} - ${date.getDate()}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`,
 }
