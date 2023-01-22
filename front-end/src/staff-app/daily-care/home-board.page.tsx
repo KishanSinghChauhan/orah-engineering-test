@@ -58,9 +58,10 @@ export const HomeBoardPage: React.FC = () => {
 
         {loadState === "loaded" && persons.length > 0 && (
           <>
-            {(filteredPersons.length ? filteredPersons : persons).map((s) => (
+            {(filteredPersons.length || searchValue ? filteredPersons : persons).map((s) => (
               <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
             ))}
+            {!filteredPersons.length && searchValue && <p>No Person Found for your search</p>}
           </>
         )}
 
