@@ -33,7 +33,7 @@ export const RollStateList: React.FC<Props> = ({ stateList, size = 14 }) => {
 
         return (
           <S.ListItem key={i}>
-            <RollStateIcon type={s.type} size={size} onClick={() => onClick(s.type)} />
+            <RollStateIcon type={s.type} size={size} onClick={s.count ? () => onClick(s.type) : undefined} />
             <span>{s.count}</span>
           </S.ListItem>
         )
